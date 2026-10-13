@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NOTERI – Ghi chú viết tay, PDF và sơ đồ tư duy</title>
+<meta name="description" content="NOTERI là ứng dụng ghi chú cho Android: viết và vẽ bằng bút, ghi chú trên PDF, tạo sơ đồ tư duy và sắp xếp trong thư mục.">
+<meta name="theme-color" content="#fff3e2">
+<link rel="icon" href="img/icon.png">
+<style>
+@font-face{font-family:GS;src:url(fonts/GoogleSans-var.woff) format("woff");font-weight:100 900;font-display:swap}
+:root{--h:28;--a:hsl(var(--h) 78% 52%);--a2:hsl(calc(var(--h) + 12) 95% 72%);--ink:#2b2017;--mut:#6b5848;--card:rgba(255,250,242,.68)}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font:16px/1.65 GS,system-ui,sans-serif;color:var(--ink);background:#fff3e2;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-2;overflow:hidden;filter:hue-rotate(calc((var(--h) - 28)*1deg))}
+.bg:before{content:"";position:absolute;inset:-8%;background:url(img/bg.jpg) center/cover;animation:dr 40s ease-in-out infinite alternate}
+.bg:after{content:"";position:absolute;inset:0;background:linear-gradient(#fff2,#fff6eaaa 70%,#fff6eae6)}
+@keyframes dr{to{transform:scale(1.14) translate(-3%,2%) rotate(2deg)}}
+@keyframes fl{50%{translate:0 -12px}}
+nav{position:fixed;top:14px;left:50%;translate:-50% 0;z-index:9;display:flex;align-items:center;gap:22px;padding:7px 8px 7px 16px;border-radius:99px;background:var(--card);backdrop-filter:blur(16px);box-shadow:0 8px 30px #8a4a1a22,inset 0 0 0 1px #fff9;white-space:nowrap}
+nav b{display:flex;align-items:center;gap:8px;letter-spacing:.04em}
+nav img{width:26px;border-radius:8px}
+nav a:not(.btn){color:var(--mut);text-decoration:none;font-size:15px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:99px;background:linear-gradient(135deg,var(--a2),var(--a));color:#3a1c06;font-weight:600;text-decoration:none;box-shadow:0 8px 22px hsl(var(--h) 80% 50%/.35),inset 0 1px #fff8;transition:.25s}
+.btn:hover{transform:translateY(-3px)}
+.btn.sm{padding:8px 16px;font-size:14px}.btn.big{padding:16px 30px;font-size:18px}
+.btn.ghost{background:#fffa;box-shadow:inset 0 0 0 1px #fff,0 6px 18px #7a4a2a1a;color:var(--ink)}
+.hero{min-height:100svh;display:grid;grid-template-columns:1fr 1.1fr;align-items:center;gap:20px;padding:110px 6vw 50px;position:relative}
+.wm{position:absolute;right:-1vw;top:50%;translate:0 -50%;font-size:clamp(90px,22vw,330px);font-weight:800;letter-spacing:-.05em;color:#fff;opacity:.5;z-index:-1;pointer-events:none;user-select:none}
+.pill{display:inline-block;padding:6px 14px;border-radius:99px;background:#fffb;box-shadow:inset 0 0 0 1px #fff;font-size:14px;color:var(--mut);margin-bottom:18px}
+h1{font-size:clamp(40px,6vw,82px);line-height:1.04;letter-spacing:-.03em;font-weight:700}
+h1 em{font-style:normal;background:linear-gradient(100deg,var(--a),hsl(calc(var(--h) + 24) 95% 58%));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:46ch;margin:20px 0 28px;color:var(--mut);font-size:18px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.hero small{color:var(--mut)}
+.sw{perspective:1400px}
+.stage{position:relative;height:min(72vh,620px);transform-style:preserve-3d;transform:rotateX(calc(var(--py,0)*-8deg)) rotateY(calc(var(--px,0)*12deg));transition:transform .2s}
+.phone{position:relative;border-radius:34px;padding:7px;background:linear-gradient(145deg,#54402f,#1e150e);box-shadow:0 40px 70px -22px #6b3a14aa,inset 0 0 0 1px #fff3;transform-style:preserve-3d}
+.phone img{display:block;width:100%;border-radius:27px}
+.stage .phone{position:absolute;left:50%;top:50%;width:clamp(130px,19vw,260px);animation:fl 7s ease-in-out infinite}
+.p1{transform:translate3d(-112%,-48%,-80px) rotateY(22deg) rotateZ(-4deg);animation-delay:-2s!important}
+.p2{transform:translate3d(-50%,-52%,60px)}
+.p3{transform:translate3d(12%,-46%,-60px) rotateY(-22deg) rotateZ(4deg);animation-delay:-4s!important}
+.ft{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:6vw;padding:11vh 8vw;max-width:1280px;margin:auto}
+.ft:nth-child(even) .ph{order:-1}
+.no{display:block;font-size:60px;line-height:1;font-weight:800;color:transparent;-webkit-text-stroke:1.5px var(--a);opacity:.75;margin-bottom:10px}
+h2{font-size:clamp(28px,3.8vw,50px);line-height:1.12;letter-spacing:-.025em;margin-bottom:14px}
+.tx p{color:var(--mut);font-size:18px;max-width:46ch}
+.ph{perspective:1100px;width:min(290px,66vw);margin:auto}
+.ph .phone{transform:rotateX(calc(var(--sx,0)*1deg + var(--py,0)*-9deg)) rotateY(calc(var(--px,0)*15deg));transition:transform .15s}
+.chip{position:absolute;padding:9px 14px;border-radius:14px 14px 14px 4px;color:#4a3318;font-weight:600;font-size:14px;white-space:nowrap;box-shadow:0 14px 30px #7a4a1a33;transform:translateZ(80px) rotate(var(--r));animation:fl 5s ease-in-out infinite}
+.chip:nth-child(3n+2){background:#fff7dc}.chip:nth-child(3n+3){background:#ffe2c0;animation-delay:-2s}.chip:nth-child(3n+4){background:#fff;animation-delay:-3.5s}
+.chip:before{content:"";position:absolute;top:-7px;left:50%;width:34px;height:12px;translate:-50% 0;background:hsl(var(--h) 90% 75%/.75);rotate:-4deg;border-radius:2px}
+.hue{display:block;margin-top:26px;max-width:340px;font-size:14px;color:var(--mut)}
+.hue input{appearance:none;display:block;width:100%;height:14px;margin-top:10px;border-radius:9px;background:linear-gradient(90deg,hsl(0 90% 70%),hsl(60 90% 70%),hsl(120 70% 62%),hsl(180 70% 62%),hsl(240 90% 76%),hsl(300 80% 72%),hsl(360 90% 70%))}
+.hue input::-webkit-slider-thumb{appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:0 3px 10px #0004}
+.hue input::-moz-range-thumb{width:28px;height:28px;border:0;border-radius:50%;background:#fff;box-shadow:0 3px 10px #0004}
+.h{text-align:center;font-size:clamp(28px,4vw,46px);letter-spacing:-.025em;margin:8vh 6vw 0}
+.card{background:var(--card);backdrop-filter:blur(14px);border-radius:26px;padding:24px;box-shadow:0 14px 40px #8a4a1a1a,inset 0 0 0 1px #fffa}
+.card h3{font-size:19px;margin:6px 0}.card p{color:var(--mut);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;max-width:1100px;margin:34px auto;padding:0 6vw}
+.grid .card{font-size:28px}
+.steps{max-width:1000px;margin:34px auto;padding:0 6vw;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.steps .no{font-size:44px}
+.mid{text-align:center;margin:30px 0 8vh}
+.faq{max-width:760px;margin:30px auto;padding:0 6vw;display:grid;gap:12px}
+details{padding:16px 22px}summary{cursor:pointer;font-weight:600}details p{margin-top:8px;color:var(--mut)}
+footer{text-align:center;padding:30px 6vw 50px;color:var(--mut);font-size:14px}footer a{color:inherit}
+.rv{opacity:0;translate:0 36px;transition:opacity .9s,translate .9s cubic-bezier(.2,.7,.2,1)}.rv.in{opacity:1;translate:0}
+@media(max-width:860px){nav a:not(.btn){display:none}.hero,.ft{grid-template-columns:1fr}.hero{padding-top:100px;text-align:center}.hero p{margin-inline:auto}.cta{justify-content:center}.stage{height:430px}.ft:nth-child(even) .ph{order:0}.chip{font-size:12px;padding:7px 10px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<nav><b><img src="img/icon.png" alt="">NOTERI</b><a href="#tinh-nang">Tính năng</a><a href="#cai-dat">Cài đặt</a><a href="#hoi-dap">Hỏi đáp</a><a class="btn sm dl">Tải APK</a></nav>
+
+<header class="hero">
+  <div class="wm" aria-hidden="true">NOTERI</div>
+  <div class="rv">
+    <span class="pill">Ứng dụng ghi chú cho Android</span>
+    <h1>Ghi chép, vẽ và học bài <em>trong một nơi</em></h1>
+    <p>NOTERI cho phép bạn viết tay bằng bút, ghi chú lên PDF, tạo sơ đồ tư duy và sắp xếp mọi thứ trong những thư mục gọn gàng.</p>
+    <div class="cta"><a class="btn big dl">Tải về cho Android</a><a class="btn big ghost" href="#tinh-nang">Xem tính năng</a></div>
+    <small>Miễn phí · Dữ liệu lưu ngay trên máy của bạn</small>
+  </div>
+  <div class="sw"><div class="stage">
+    <div class="phone p1"><img src="img/pdf.webp" alt="Ghi chú trên PDF"></div>
+    <div class="phone p3"><img src="img/mindmap.webp" alt="Sơ đồ tư duy"></div>
+    <div class="phone p2"><img src="img/thu-muc.webp" alt="Màn hình chính với các thư mục"></div>
+  </div></div>
+</header>
+
+<main id="tinh-nang"></main>
+
+<h2 class="h rv">Và còn nhiều điều khác</h2>
+<section class="grid" id="cap"></section>
+
+<h2 class="h rv" id="cai-dat">Cài đặt trong ba bước</h2>
+<section class="steps">
+  <div class="card rv"><b class="no">1</b><h3>Tải tệp APK</h3><p>Bấm nút tải về bên dưới. Tệp sẽ được lưu vào thư mục Tải xuống của máy.</p></div>
+  <div class="card rv"><b class="no">2</b><h3>Mở tệp vừa tải</h3><p>Mở tệp NOTERI.apk từ thông báo hoặc từ ứng dụng Tệp.</p></div>
+  <div class="card rv"><b class="no">3</b><h3>Cho phép và cài đặt</h3><p>Nếu Android hỏi, hãy cho phép cài ứng dụng từ nguồn này, sau đó bấm Cài đặt.</p></div>
+</section>
+<p class="mid rv"><a class="btn big dl">Tải NOTERI cho Android</a></p>
+
+<h2 class="h rv" id="hoi-dap">Câu hỏi thường gặp</h2>
+<section class="faq">
+  <details class="card rv"><summary>Dữ liệu của tôi được lưu ở đâu?</summary><p>Ghi chú được lưu ngay trong ứng dụng trên thiết bị của bạn.</p></details>
+  <details class="card rv"><summary>Làm sao để sao lưu?</summary><p>NOTERI có chức năng sao lưu và khôi phục bằng tệp .noteri, bạn có thể lưu tệp này ở nơi mình muốn.</p></details>
+  <details class="card rv"><summary>Vì sao Android hiện cảnh báo khi cài?</summary><p>Ứng dụng được phát hành dưới dạng tệp APK ngoài kho ứng dụng, nên Android hiển thị cảnh báo chung cho mọi tệp APK tải về từ bên ngoài.</p></details>
+  <details class="card rv"><summary>Có bản cho iPhone không?</summary><p>Hiện tại NOTERI chỉ có bản dành cho Android.</p></details>
+</section>
+<footer>NOTERI · Ứng dụng ghi chú · <a class="gh">GitHub</a></footer>
+
+<script>
+const GH="TEN-CUA-BAN/noteri-web";
+const F=[
+{n:"01",t:"Nhiều giao diện, chọn theo cách bạn thích",d:"Chuyển giữa nền sáng, xám và tối, hoặc chọn một trong nhiều bảng màu có sẵn. Muốn riêng hơn thì tự chọn một màu, ứng dụng sẽ tự phối nền, chữ và nút cho dễ nhìn.",i:"theme",c:[["Sáng · Xám · Tối",-30,8,-4],["Nhiều bảng màu",-24,52,-2],["Tự chọn màu bất kỳ",55,80,3]],x:'<label class="hue">Thử đổi màu cho chính trang này<input type="range" id="hue" min="0" max="360" value="28"></label>'},
+{n:"02",t:"Chèn ảnh vào trang và PDF",d:"Thêm ảnh từ thư viện, kéo đến vị trí mong muốn rồi tinh chỉnh ngay trên màn hình: lật ảnh, đổi độ mờ, sắp xếp lớp, khoá vị trí hoặc xoá.",i:"chen-anh",c:[["Chỉnh độ mờ",50,62,3],["Lật ảnh",-26,70,-4],["Khoá vị trí",58,28,2]]},
+{n:"03",t:"Ghi chú trên PDF, kể cả ngoài lề",d:"Mở PDF và viết trực tiếp lên trang bằng bút, bút nhấn, chữ hoặc giấy ghi chú. Khoảng trống bên ngoài trang vẫn dùng được, nên ý nào cũng có chỗ để ghi.",i:"pdf",c:[["Giấy ghi chú dán",-30,22,-4],["Viết cả ngoài trang",52,48,3],["Bút và bút nhấn",-20,86,-2]]},
+{n:"04",t:"Sơ đồ tư duy gọn gàng",d:"Sắp xếp ý tưởng thành các ô có màu, gom chúng lại thành nhóm và vẽ tay chen vào bất cứ chỗ nào. Hợp để lên kế hoạch hoặc tóm tắt bài học.",i:"mindmap",c:[["Gom thành nhóm",52,24,3],["Ô nhiều màu",-26,36,-4],["Vẽ tay thoải mái",40,60,2]]},
+{n:"05",t:"Thư mục như một giá sách",d:"Trang, PDF và ghi âm được xếp vào các thư mục nhiều màu, xem trước ngay bên ngoài. Có thanh tìm kiếm và kéo thả để sắp xếp thật nhanh.",i:"thu-muc",c:[["Xem trước từng mục",50,24,3],["Tìm kiếm nhanh",-26,12,-4],["Kéo thả vào thư mục",-18,72,2]]}
+];
+document.getElementById("tinh-nang").innerHTML=F.map(f=>`<section class="ft"><div class="tx rv"><b class="no">${f.n}</b><h2>${f.t}</h2><p>${f.d}</p>${f.x||""}</div><div class="ph rv"><div class="phone"><img src="img/${f.i}.webp" alt="${f.t}" loading="lazy">${f.c.map(c=>`<span class="chip" style="left:${c[1]}%;top:${c[2]}%;--r:${c[3]}deg">${c[0]}</span>`).join("")}</div></div></section>`).join("");
+document.getElementById("cap").innerHTML=[["✍️","Viết và vẽ tay","Bút, bút nhấn và tẩy cho cả ngón tay lẫn bút cảm ứng."],["🧠","Sơ đồ tư duy","Ô, mũi tên và nhóm để sắp xếp ý tưởng."],["📄","PDF","Mở và ghi chú trực tiếp lên từng trang."],["🎙️","Ghi âm","Ghi âm hoặc thêm tệp âm thanh vào thư mục."],["📤","Xuất và sao lưu","Xuất ảnh, PDF; sao lưu bằng tệp .noteri."]].map(c=>`<div class="card rv">${c[0]}<h3>${c[1]}</h3><p>${c[2]}</p></div>`).join("");
+document.querySelectorAll(".dl").forEach(a=>a.href=`https://github.com/${GH}/releases/latest`);
+document.querySelectorAll(".gh").forEach(a=>a.href=`https://github.com/${GH}`);
+const R=document.documentElement.style,ph=[...document.querySelectorAll(".ph")];
+document.getElementById("hue").oninput=e=>R.setProperty("--h",e.target.value);
+addEventListener("pointermove",e=>{R.setProperty("--px",e.clientX/innerWidth-.5);R.setProperty("--py",e.clientY/innerHeight-.5)});
+const sc=()=>ph.forEach(p=>{const r=p.getBoundingClientRect();p.style.setProperty("--sx",((r.top+r.height/2)/innerHeight-.5)*-16)});
+addEventListener("scroll",sc,{passive:true});sc();
+const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&(e.target.classList.add("in"),io.unobserve(e.target))),{threshold:.15});
+document.querySelectorAll(".rv").forEach(e=>io.observe(e));
+</script>
+</body>
+</html>
